@@ -5,6 +5,14 @@ var fs = require('fs');
 var querystring = require('querystring');
 var http = require('http-request');
 var results = {};
+var index = 0;
+
+
+paths = {
+  'siteAssets' : path.join(__dirname, '../web/public'),
+  'archivedSites' : path.join(__dirname, '../archives/sites'),
+  'list' : path.join(__dirname, '../archives/sites.txt')
+};
 
 // require more modules/folders here!
 
@@ -36,43 +44,47 @@ exports.submit = function(req, res){
   var body = '';
   if (req.method === "POST"){
     req.on('data',function(chunk){
-    body += chunk;
-  });
+      body += chunk;
+    });
     req.on('end', function() {
       var websiteName = querystring.parse(body)['url'];
-      // archive.readListOfUrls();
-      archive.isUrlInList('www.google.com');
-
-
-      //archive.downloadUrls(websiteName);
-
-
-
-
-    //   if (!results[websiteName]) {
-    //     results[websiteName] = websiteName;//placeholder: to change to a function to get website;
-    //     var stringObj = JSON.stringify(results);
-    //   }
-
-    //   //this is where we start process of fetching html + saving it somewhere
-
-    //   fs.writeFile('../test/testdata/sites.txt', stringObj, function(err){
-    //     if(err){
-    //       alert(err);
-    //     }
-    //   });
-     })
-  //}
-  fs.readFile(loadPath, function(err, data){
-    if (!err) {
-      res.writeHead(201, httpHelp.headers);
-      res.end(data);
-    } else {
-      res.end(err);
-    }
-  });
-}
-}
+      if (!archive.isUrlInList(websiteName)){
+        archive.addUrlToList(websiteName);
+        results[websiteName] = index++;
+        //set cron to download website from text file
+      } else {
+        if (archive.isURLArchived(websiteName)){
+          fs.readFile(path.join(paths.archivedSites, websiteName), function(err, data){
+            if(err){
+              res.end(err);
+            } else {
+              res.writeHead(201, httpHelp.headers);
+              res.end(contents);
+            }
+          });
+        } else {
+          //load loading page
+          fs.readFile(loadPath, function(err, data){
+            if (err) {
+              res.end(err);
+            } else {
+              res.writeHead(201, httpHelp.headers);
+              res.end(data);
+            }
+          });
+        }
+      }
+    });
+    fs.readFile(loadPath, function(err, data){
+      if (err) {
+        res.end(err);
+      } else {
+        res.writeHead(201, httpHelp.headers);
+        res.end(data);
+      }
+    });
+  }
+};
 
 
 

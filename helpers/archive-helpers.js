@@ -26,52 +26,58 @@ exports.initialize = function(pathsObj){
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(){
-  fs.readFile(exports.paths.list, function(err, data){
-    var list = '';
-    list += data;
-    console.log(list);
-    return list;
+exports.readListOfUrls = function(callback){
+  var list;
+  fs.readFile(exports.paths.list, 'utf8', function(err, data){
     if (err) throw err;
+    list = data.split('\n');
+    return callback(list);
   })
 };
 
 exports.isUrlInList = function(url){
-  var list = exports.readListOfUrls();
-  var listArray = list.split('\n');
-  if (_.indexOf(listArray, url) === -1) {
-    return false;
-  } else {
-    return true;
+
+  var check = function(list){
+    console.log(typeof list, list);
+    if (_.indexOf(list, url) === -1) {
+      console.log('got here', 'false');
+      return false;
+    } else {
+      console.log('got here too', 'true');
+      return true;
+    }
   }
+
+  return exports.readListOfUrls(check);
 };
 
-exports.addUrlToList = function(newUrl){
-  var list = readListOfUrls();
-  var downloadSucceed = downloadUrls();
-  if(downloadSucceed !== false){
-    list[newUrl]= downloadSucceed;
-  }
+exports.addUrlToList = function(url){
+  //only add URL to list AFTER filename is added to archive
+  fs.appendFile(exports.paths.list, url+'\n', function (err) {
+    if (err) throw err;
+    console.log('The url: ' + url + ' was appended to file!');
+});
+
 };
 
 exports.isURLArchived = function(url){
-  var list = readListOfUrls();
-  if(list.url){
+  fs.readFile(path.join(exports.paths.archivedSites,url), 'utf8', function(err, data){
+    if (err) {
+      return false;
+    }
     return true;
-  }return false;
+  });
 };
 
 exports.downloadUrls = function(url){
   //MAGIC*~*~*~*~
-  var newFileName = "../archives/sites/" + url.toString();
+  var newFileName = path.join(exports.paths.archivedSites,url);
   http.get(url, newFileName, function (err, res) {
-  if (err) {
-    console.error(err);
-    return;
-  }
-
-  console.log(res.code, res.headers, res.file);
-});
+    if (err) {
+      return err;
+    }
+    console.log(res.code, res.headers, res.file);
+  });
   return newFileName;
 }
 
