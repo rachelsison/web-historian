@@ -3,8 +3,8 @@ var archive = require('../helpers/archive-helpers');
 var httpHelp = require('./http-helpers');
 var fs = require('fs');
 var querystring = require('querystring');
-var results ={};
 var http = require('http-request');
+var results = {};
 
 // require more modules/folders here!
 
@@ -40,13 +40,11 @@ exports.submit = function(req, res){
   });
     req.on('end', function() {
       var websiteName = querystring.parse(body)['url'];
-      //var site = fs.readFile(sites.txt)
-      //site = JSON.parse(site);
-      //site[websiteName]= "../filename";
-        //do stuff here; lookup, render page, call fetch function
-      //fs.writeFile(JSON.stringify(site))
+      // archive.readListOfUrls();
+      archive.isUrlInList('www.google.com');
 
-      archive.downloadUrls(websiteName);
+
+      //archive.downloadUrls(websiteName);
 
 
 
@@ -65,10 +63,10 @@ exports.submit = function(req, res){
     //   });
      })
   //}
-  fs.readFile(loadPath, function(err,contents){
+  fs.readFile(loadPath, function(err, data){
     if (!err) {
       res.writeHead(201, httpHelp.headers);
-      res.end(contents)
+      res.end(data);
     } else {
       res.end(err);
     }

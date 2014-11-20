@@ -27,20 +27,23 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(){
-  var urls;
-  fs.readFile("../test/testdata/sites.txt", function(err, content){
-    urls = JSON.parse(content);
+  fs.readFile(exports.paths.list, function(err, data){
+    var list = '';
+    list += data;
+    console.log(list);
+    return list;
+    if (err) throw err;
   })
-  return urls;
 };
 
-exports.isUrlInList = function(obj, url){
-  _each(obj, function(v,k,o){
-    if (k === url) {
-      return true;
-    }
-  });
-  return false;
+exports.isUrlInList = function(url){
+  var list = exports.readListOfUrls();
+  var listArray = list.split('\n');
+  if (_.indexOf(listArray, url) === -1) {
+    return false;
+  } else {
+    return true;
+  }
 };
 
 exports.addUrlToList = function(newUrl){

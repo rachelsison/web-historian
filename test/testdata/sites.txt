@@ -1,1 +1,1 @@
-{"www.google.com":"www.google.com","www.test.com":"www.test.com","www.espn.com":"www.espn.com","www.hellokitty.com":"www.hellokitty.com"}
+www.google.com

@@ -16,7 +16,6 @@ var ip = "127.0.0.1";
 
 var server = http.createServer(function(req, res){
   var pathname = url.parse(req.url)['pathname'];
-  console.log(pathname);
   var route = routeMap[pathname];
   if (route) {
     route(req, res);
