@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var http = require('http-request');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -26,16 +27,49 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(){
+  var urls;
+  fs.readFile("../test/testdata/sites.txt", function(err, content){
+    urls = JSON.parse(content);
+  })
+  return urls;
 };
 
-exports.isUrlInList = function(){
+exports.isUrlInList = function(obj, url){
+  _each(obj, function(v,k,o){
+    if (k === url) {
+      return true;
+    }
+  });
+  return false;
 };
 
-exports.addUrlToList = function(){
+exports.addUrlToList = function(newUrl){
+  var list = readListOfUrls();
+  var downloadSucceed = downloadUrls();
+  if(downloadSucceed !== false){
+    list[newUrl]= downloadSucceed;
+  }
 };
 
-exports.isURLArchived = function(){
+exports.isURLArchived = function(url){
+  var list = readListOfUrls();
+  if(list.url){
+    return true;
+  }return false;
 };
 
-exports.downloadUrls = function(){
-};
+exports.downloadUrls = function(url){
+  //MAGIC*~*~*~*~
+  var newFileName = "../archives/sites/" + url.toString();
+  http.get(url, newFileName, function (err, res) {
+  if (err) {
+    console.error(err);
+    return;
+  }
+
+  console.log(res.code, res.headers, res.file);
+});
+  return newFileName;
+}
+
+
