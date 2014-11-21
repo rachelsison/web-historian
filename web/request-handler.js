@@ -48,32 +48,8 @@ exports.submit = function(req, res){
     });
     req.on('end', function() {
       var websiteName = querystring.parse(body)['url'];
-      if (!archive.isUrlInList(websiteName)){
-        archive.addUrlToList(websiteName);
-        results[websiteName] = index++;
-        //set cron to download website from text file
-      } else {
-        if (archive.isURLArchived(websiteName)){
-          fs.readFile(path.join(paths.archivedSites, websiteName), function(err, data){
-            if(err){
-              res.end(err);
-            } else {
-              res.writeHead(201, httpHelp.headers);
-              res.end(contents);
-            }
-          });
-        } else {
-          //load loading page
-          fs.readFile(loadPath, function(err, data){
-            if (err) {
-              res.end(err);
-            } else {
-              res.writeHead(201, httpHelp.headers);
-              res.end(data);
-            }
-          });
-        }
-      }
+      archive.isURLArchived(websiteName);
+
     });
     fs.readFile(loadPath, function(err, data){
       if (err) {

@@ -35,38 +35,50 @@ exports.readListOfUrls = function(callback){
   })
 };
 
-exports.isUrlInList = function(url){
+exports.isUrlInList = function(url, callback){
 
-  var check = function(list){
+
+
+  var check1 = function(list){
     console.log(typeof list, list);
     if (_.indexOf(list, url) === -1) {
-      console.log('got here', 'false');
+      console.log('false; excluded from url text list');
       return false;
     } else {
-      console.log('got here too', 'true');
+      console.log('true; included in url text list');
       return true;
     }
   }
+  var found =  exports.readListOfUrls(check1);
 
-  return exports.readListOfUrls(check);
+  callback(found);
+
 };
 
 exports.addUrlToList = function(url){
-  //only add URL to list AFTER filename is added to archive
-  fs.appendFile(exports.paths.list, url+'\n', function (err) {
-    if (err) throw err;
-    console.log('The url: ' + url + ' was appended to file!');
+  //callback for isUrlInList:
+    fs.appendFile(exports.paths.list, url+'\n', function (err) {
+      if (err) throw err;
+      console.log('The url: ' + url + ' was appended to file!');
 });
+}
 
 };
 
 exports.isURLArchived = function(url){
-  fs.readFile(path.join(exports.paths.archivedSites,url), 'utf8', function(err, data){
-    if (err) {
-      return false;
-    }
-    return true;
-  });
+
+  var check3 = function(url){
+    fs.readFile(path.join(exports.paths.archivedSites,url), 'utf8', function(err, data){
+      if (err) {
+        console.log('false; url website is not archived');
+        return false;//download
+      }
+      console.log('true; url website is archived')
+      return true;//display page
+    });
+  }
+
+  return exports.isUrlInList(url, check3);
 };
 
 exports.downloadUrls = function(url){
